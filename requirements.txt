@@ -1,0 +1,7 @@
+streamlit
+pandas
+google-generativeai
+edge-tts
+requests
+imageio-ffmpeg
+pytest
