@@ -67,7 +67,6 @@ from src.video_pipeline.youtube_metadata import generate_youtube_metadata, write
 RUNS_DIR = ROOT_DIR / "video_pipeline_runs"
 PREVIEW_DIR = RUNS_DIR / "_voice_previews"
 SETTINGS_PATH = RUNS_DIR / "_saved_ui_settings.json"
-API_KEYS_PATH = RUNS_DIR / "_saved_api_keys.json"
 VOICE_PREVIEW_TEXT = "Kahramanimiz sahneye giriyor. Doganin dengesi, bir anligina kararsiz kaliyor."
 DEFAULT_ELEVENLABS_VOICE_NAME = "Arman Yılmazkurt - Upbeat and Casual"
 DEFAULT_ELEVENLABS_VOICE_ID = "qUGjOGoUuQBTUqwY8n0e"
@@ -369,7 +368,6 @@ RECOMMENDED_UI_SETTINGS = {
 
 def init_state() -> None:
     saved_settings = load_saved_settings()
-    saved_api_keys = load_saved_api_keys()
     defaults = {
         "job_dir": None,
         "input_video": None,
@@ -394,8 +392,8 @@ def init_state() -> None:
         "ui_theme": "Auto",
         "preview_segment_index": 0,
         "custom_prompt": ANALYSIS_PROMPT,
-        "gemini_api_key": saved_api_keys.get("gemini_api_key") or os.getenv("GEMINI_API_KEY", ""),
-        "elevenlabs_api_key": saved_api_keys.get("elevenlabs_api_key") or os.getenv("ELEVENLABS_API_KEY", ""),
+        "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
+        "elevenlabs_api_key": os.getenv("ELEVENLABS_API_KEY", ""),
         "cta_enabled": True,
         "cta_text": "İzlediğiniz için teşekkürler. Beğenmeyi ve abone olmayı unutmayın.",
         "karaoke_words": True,
@@ -437,50 +435,6 @@ def load_saved_settings() -> dict:
         return json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
     except Exception:
         return {}
-
-
-def load_saved_api_keys() -> dict:
-    if not API_KEYS_PATH.exists():
-        return {}
-    try:
-        payload = json.loads(API_KEYS_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-    return {
-        "gemini_api_key": str(payload.get("gemini_api_key", "") or "").strip(),
-        "elevenlabs_api_key": str(payload.get("elevenlabs_api_key", "") or "").strip(),
-    }
-
-
-def save_api_keys(gemini_api_key: str | None, elevenlabs_api_key: str | None) -> bool:
-    payload = {}
-    if gemini_api_key and gemini_api_key.strip():
-        payload["gemini_api_key"] = gemini_api_key.strip()
-    if elevenlabs_api_key and elevenlabs_api_key.strip():
-        payload["elevenlabs_api_key"] = elevenlabs_api_key.strip()
-    if not payload:
-        return False
-    API_KEYS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    API_KEYS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    st.session_state.gemini_api_key = payload.get("gemini_api_key", "")
-    st.session_state.elevenlabs_api_key = payload.get("elevenlabs_api_key", "")
-    return True
-
-
-def clear_saved_api_keys() -> None:
-    if API_KEYS_PATH.exists():
-        API_KEYS_PATH.unlink()
-    st.session_state.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
-    st.session_state.elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY", "")
-
-
-def mask_secret(value: str | None) -> str:
-    value = (value or "").strip()
-    if not value:
-        return "Kayitli degil"
-    if len(value) <= 8:
-        return "********"
-    return f"{value[:4]}...{value[-4:]}"
 
 
 def save_ui_settings(settings: dict) -> None:
@@ -2399,32 +2353,6 @@ def render_sidebar() -> dict:
                 value=output_name,
                 help="Render edilen MP4 dosyasinin job klasoru icindeki adi.",
             )
-            st.markdown("#### API anahtarları")
-            saved_api_keys = load_saved_api_keys()
-            st.caption(f"Gemini: {mask_secret(saved_api_keys.get('gemini_api_key'))}")
-            st.caption(f"ElevenLabs: {mask_secret(saved_api_keys.get('elevenlabs_api_key'))}")
-            key_col_a, key_col_b = st.columns(2)
-            with key_col_a:
-                if st.button(
-                    "API anahtarlarini kaydet",
-                    use_container_width=True,
-                    help="Gemini ve ElevenLabs anahtarlarini bu cihaza kaydeder.",
-                ):
-                    if save_api_keys(api_key, elevenlabs_api_key):
-                        st.success("API anahtarlari kaydedildi.")
-                    else:
-                        st.warning("Kaydedilecek API anahtari yok.")
-            with key_col_b:
-                if st.button(
-                    "Kayitli anahtarlari sil",
-                    use_container_width=True,
-                    help="Bu cihazda tutulan Gemini ve ElevenLabs anahtarlarini siler.",
-                ):
-                    clear_saved_api_keys()
-                    st.success("Kayitli API anahtarlari silindi.")
-                    st.rerun()
-            st.caption(f"Yerel dosya: {API_KEYS_PATH}")
-
             if st.button(
                 "Ayarlari kaydet",
                 use_container_width=True,

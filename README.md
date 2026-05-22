@@ -26,5 +26,5 @@ streamlit run ui\streamlit_app.py
 ## Notlar
 
 - FFmpeg sistemde kurulu olmali veya `imageio-ffmpeg` uzerinden bulunabilmeli.
-- API anahtarlari UI icinden yerel olarak kaydedilebilir.
+- API anahtarlari oturumda tutulur veya ortam degiskenlerinden okunur; guvenlik icin diske kaydedilmez.
 - Uretilen videolar `video_pipeline_runs/` altinda tutulur ve git'e eklenmez.
