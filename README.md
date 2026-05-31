@@ -1,30 +1,55 @@
 # youtube-shorts-video-pipeline
 
-Streamlit tabanli YouTube Shorts video pipeline araci.
+YouTube Shorts Video Pipeline, uzun videolardan veya kaynak medyadan Shorts formatinda ciktilar uretmek icin hazirlanmis Python ve Streamlit tabanli bir otomasyon aracidir.
 
-Bu proje yuklenen videoyu analiz eder, Turkce anlatim uretir, ElevenLabs TTS ile seslendirir, ASS/SRT altyazi olusturur ve FFmpeg ile final MP4 render alir.
+Pipeline; video analizi, Turkce anlatim metni, ElevenLabs seslendirme, ASS/SRT altyazi ve FFmpeg render adimlarini tek akista toplar.
 
 ## Calistirma
 
-```powershell
-python -m venv venv
-.\venv\Scripts\activate
+```bash
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 streamlit run ui\streamlit_app.py
 ```
 
+CLI veya script tabanli akislarda `scripts/` ve `src/` altindaki yardimci dosyalar kullanilabilir.
+
 ## Ana Ozellikler
 
-- Gemini ile video analizi ve senaryo uretimi
-- ElevenLabs TTS entegrasyonu
-- Ses ve altyazi senkronizasyonu
-- Kelime kelime karaoke altyazi
-- 3D golge, kalin outline ve Shorts caption stilleri
-- Logo, crop, blur arka plan ve sansur bolgesi destegi
-- YouTube baslik, aciklama ve etiket ciktilari
+- Video veya sahne analizi icin Gemini destekli akil yurutme akisi.
+- Turkce Shorts anlatim metni olusturma.
+- ElevenLabs ile voiceover uretimi.
+- ASS ve SRT altyazi uretimi.
+- FFmpeg ile dikey Shorts render pipeline.
+- Streamlit UI ile daha kolay manuel kontrol.
+
+## Proje Yapisi
+
+- `ui/streamlit_app.py` - Streamlit arayuzu.
+- `src/` - pipeline, analiz, altyazi, ses ve render mantigi.
+- `scripts/` - yardimci calistirma/otomasyon scriptleri.
+- `docs/` - notlar ve ek dokumantasyon.
+- `tests/` - test dosyalari.
+- `requirements.txt` - Python bagimliliklari.
+
+## Teknoloji
+
+| Katman | Araclar |
+| --- | --- |
+| UI | Streamlit |
+| AI analiz | Google Gemini |
+| Ses | ElevenLabs |
+| Altyazi | ASS, SRT |
+| Render | FFmpeg |
+| Dil | Python |
 
 ## Notlar
 
-- FFmpeg sistemde kurulu olmali veya `imageio-ffmpeg` uzerinden bulunabilmeli.
-- API anahtarlari oturumda tutulur veya ortam degiskenlerinden okunur; guvenlik icin diske kaydedilmez.
-- Uretilen videolar `video_pipeline_runs/` altinda tutulur ve git'e eklenmez.
+- API anahtarlarini `.env` veya lokal ortam degiskenlerinde tutun; repoya secret commit etmeyin.
+- Render kalitesi FFmpeg presetleri, kaynak video cozunurlugu ve altyazi stiline gore degisir.
+- Cikti dosyalarini buyuk medya dosyalariyla beraber versiyon kontrolune eklememek daha sagliklidir.
+
+## Status
+
+- Repository: https://github.com/yusufky63/youtube-shorts-video-pipeline
